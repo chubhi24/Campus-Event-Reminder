@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Campus Event Reminder</title>
+  
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="css/styles.css">
+  
+  <!-- EmailJS Browser SDK CDN -->
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+</head>
+<body>
+  <!-- Ambient Glassmorphism Background Shapes -->
+  <div class="bg-ambient-shape shape-1"></div>
+  <div class="bg-ambient-shape shape-2"></div>
+
+  <!-- Mobile Sidebar Overlay -->
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+  <!-- ================= AUTHENTICATION CONTAINER ================= -->
+  <div id="auth-container" class="auth-container">
+    <div class="auth-card">
+      <div class="auth-logo">
+        <svg viewBox="0 0 24 24" width="48" height="48">
+          <path fill="currentColor" d="M12 2A10 10 0 0 0 2 12a10 10 0 0 0 10 10 10 10 0 0 0 10-10A10 10 0 0 0 12 2zm1 17.93V19a1 1 0 0 1-2 0v-1.07A8 8 0 0 1 4.07 13H5a1 1 0 0 1 0-2h-.93A8 8 0 0 1 11 4.07V5a1 1 0 0 1 2 0v-.97A8 8 0 0 1 19.93 11H19a1 1 0 0 1 0 2h.93A8 8 0 0 1 13 19.93zM12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/>
+        </svg>
+        <h2>Campus Event Reminder</h2>
+        <p>Keep track of college events and never miss a deadline.</p>
+      </div>
+
+      <div class="auth-toggle">
+        <button id="auth-toggle-login" class="auth-toggle-btn active">Login</button>
+        <button id="auth-toggle-signup" class="auth-toggle-btn">Register</button>
+      </div>
+
+      <!-- Login Form -->
+      <form id="login-form" class="auth-form">
+        <div class="form-group">
+          <label for="login-email">Email Address</label>
+          <div class="input-wrapper">
+            <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            <input type="email" id="login-email" placeholder="student@college.edu" required autocomplete="email">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="login-password">Password</label>
+          <div class="input-wrapper">
+            <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <input type="password" id="login-password" placeholder="••••••••" required autocomplete="current-password">
+          </div>
+        </div>
+        <button type="submit" class="submit-btn">
+          <span>Sign In</span>
+          <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+      </form>
+
+      <!-- Signup Form -->
+      <form id="signup-form" class="auth-form" style="display: none;">
+        <div class="form-group">
+          <label for="signup-name">Full Name</label>
+          <div class="input-wrapper">
+            <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <input type="text" id="signup-name" placeholder="John Doe" required autocomplete="name">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="signup-email">Email Address</label>
+          <div class="input-wrapper">
+            <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            <input type="email" id="signup-email" placeholder="student@college.edu" required autocomplete="email">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="signup-password">Password</label>
+          <div class="input-wrapper">
+            <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <input type="password" id="signup-password" placeholder="Minimum 6 characters" minlength="6" required autocomplete="new-password">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="signup-confirm-password">Confirm Password</label>
+          <div class="input-wrapper">
+            <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <input type="password" id="signup-confirm-password" placeholder="••••••••" minlength="6" required autocomplete="new-password">
+          </div>
+        </div>
+        <button type="submit" class="submit-btn">
+          <span>Create Account</span>
+          <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= APP LAYOUT ================= -->
+  <div id="app-layout" class="app-container" style="display: none;">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <svg viewBox="0 0 24 24">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+        <span>Campus Event</span>
+      </div>
+
+      <div class="sidebar-profile">
+        <div class="profile-avatar" id="user-avatar">U</div>
+        <div class="profile-info">
+          <div class="profile-name" id="user-display-name">Loading...</div>
+          <div class="profile-role">Student</div>
+        </div>
+      </div>
+
+      <ul class="sidebar-menu">
+        <li class="menu-item active" id="nav-dashboard" data-target="view-dashboard">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          <span>Dashboard</span>
+        </li>
+        <li class="menu-item" id="nav-events" data-target="view-events">
+          <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          <span>Event List</span>
+        </li>
+        <li class="menu-item" id="nav-add-event" data-target="view-add-event">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <span>Add Event</span>
+        </li>
+        <li class="menu-item" id="nav-calendar" data-target="view-calendar">
+          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span>Calendar View</span>
+        </li>
+        <li class="menu-item" id="nav-settings" data-target="view-settings">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <span>Settings</span>
+        </li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <button id="theme-toggle" class="theme-toggle-btn">
+          <span>Dark Mode</span>
+          <svg id="theme-icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <svg id="theme-icon-sun" viewBox="0 0 24 24" style="display: none;"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+        <li class="menu-item" id="sidebar-logout" style="margin-top: 0;">
+          <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          <span>Sign Out</span>
+        </li>
+      </div>
+    </aside>
+
+    <!-- Main Content Panel -->
+    <main class="main-content">
+      <!-- Header Bar -->
+      <header class="header-bar">
+        <button id="mobile-hamburger" class="mobile-menu-toggle" aria-label="Toggle Navigation">
+          <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <div class="header-info">
+          <h1 id="header-page-title">Dashboard</h1>
+          <p id="header-subtitle">Welcome back, student!</p>
+        </div>
+        <div class="header-actions">
+          <div class="live-clock" id="clock-display">00:00:00 PM</div>
+          <div class="notification-bell" id="trigger-test-notif" title="Notification Status">
+            <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <span class="notification-badge" id="bell-badge"></span>
+          </div>
+        </div>
+      </header>
+
+      <!-- ================= SECTION: DASHBOARD ================= -->
+      <section id="view-dashboard" class="view-section active">
+        <!-- Stats Cards Grid -->
+        <div class="dashboard-grid">
+          <div class="stat-card stat-total">
+            <div class="stat-icon">
+              <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg>
+            </div>
+            <div class="stat-info">
+              <span class="stat-value" id="stat-total-val">0</span>
+              <span class="stat-label">Total Events</span>
+            </div>
+          </div>
+          <div class="stat-card stat-upcoming">
+            <div class="stat-icon">
+              <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            </div>
+            <div class="stat-info">
+              <span class="stat-value" id="stat-upcoming-val">0</span>
+              <span class="stat-label">Upcoming Events</span>
+            </div>
+          </div>
+          <div class="stat-card stat-today">
+            <div class="stat-icon">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div class="stat-info">
+              <span class="stat-value" id="stat-today-val">0</span>
+              <span class="stat-label">Happening Today</span>
+            </div>
+          </div>
+          <div class="stat-card stat-nearest">
+            <div class="stat-icon">
+              <svg viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2z"/><line x1="12" y1="9" x2="12" y2="13"/><circle cx="12" cy="17" r="1"/></svg>
+            </div>
+            <div class="stat-info">
+              <span class="stat-value" id="stat-nearest-val">None</span>
+              <span class="stat-label">Nearest Deadline</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dashboard Layout Split -->
+        <div class="dashboard-content-layout">
+          <!-- Left Column: Nearest Event Countdown Detail & Priority Chart -->
+          <div class="dashboard-panel">
+            <div class="panel-header">
+              <h3 class="panel-title">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                Nearest Event Live Countdown
+              </h3>
+            </div>
+            <div id="nearest-event-container">
+              <div class="nearest-event-box">
+                <div class="card-top">
+                  <div class="nearest-title" id="nearest-title-text">No Event Scheduled</div>
+                  <span class="badge" id="nearest-priority-badge">LOW</span>
+                </div>
+                <div class="nearest-meta">
+                  <div class="meta-item">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    <span id="nearest-date-text">--/--/----</span>
+                  </div>
+                  <div class="meta-item">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 15 15"/></svg>
+                    <span id="nearest-time-text">--:--</span>
+                  </div>
+                  <div class="meta-item">
+                    <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    <span id="nearest-venue-text">TBA</span>
+                  </div>
+                </div>
+                <!-- Interactive Countdown segment -->
+                <div class="nearest-countdown">
+                  <div class="countdown-segment">
+                    <div class="countdown-num" id="cd-days">00</div>
+                    <div class="countdown-label">Days</div>
+                  </div>
+                  <div class="countdown-segment">
+                    <div class="countdown-num" id="cd-hours">00</div>
+                    <div class="countdown-label">Hours</div>
+                  </div>
+                  <div class="countdown-segment">
+                    <div class="countdown-num" id="cd-mins">00</div>
+                    <div class="countdown-label">Mins</div>
+                  </div>
+                  <div class="countdown-segment">
+                    <div class="countdown-num" id="cd-secs">00</div>
+                    <div class="countdown-label">Secs</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Quick event list -->
+          <div class="dashboard-panel">
+            <div class="panel-header">
+              <h3 class="panel-title">
+                <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                Next 3 Upcomings
+              </h3>
+              <span class="panel-action-link" id="dash-view-all">View All</span>
+            </div>
+            <div class="feed-list" id="dashboard-feed-list">
+              <!-- Dynamically populated -->
+              <div class="empty-state">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                <p>No upcoming events found. Create one now!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SECTION: ADD EVENT ================= -->
+      <section id="view-add-event" class="view-section">
+        <div class="form-panel">
+          <div class="panel-header">
+            <h3 class="panel-title" id="form-action-title">
+              <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Create New Campus Event
+            </h3>
+          </div>
+          <form id="event-form">
+            <!-- Hidden field for edits -->
+            <input type="hidden" id="event-edit-id">
+
+            <div class="form-group">
+              <label for="event-title">Event Title</label>
+              <div class="input-wrapper">
+                <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                <input type="text" id="event-title" placeholder="e.g. Algorithms Midterm Exam" required autocomplete="off">
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 16px;">
+              <label for="event-description">Description / Notes</label>
+              <div class="input-wrapper">
+                <textarea id="event-description" placeholder="Topics covered, syllabus, or pre-requisites..." autocomplete="off"></textarea>
+              </div>
+            </div>
+
+            <div class="form-grid-2" style="margin-top: 16px;">
+              <div class="form-group">
+                <label for="event-category">Category</label>
+                <div class="input-wrapper">
+                  <svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                  <select id="event-category" required>
+                    <option value="" disabled selected>Select Category</option>
+                    <option value="Exam">Exam</option>
+                    <option value="Placement Drive">Placement Drive</option>
+                    <option value="Hackathon">Hackathon</option>
+                    <option value="Workshop">Workshop</option>
+                    <option value="Seminar">Seminar</option>
+                    <option value="Club Meeting">Club Meeting</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="event-reminder">Reminder Frequency</label>
+                <div class="input-wrapper">
+                  <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                  <select id="event-reminder" required>
+                    <option value="1h">1 Hour Before</option>
+                    <option value="6h">6 Hours Before</option>
+                    <option value="1d" selected>1 Day Before</option>
+                    <option value="3d">3 Days Before</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-grid-2" style="margin-top: 16px;">
+              <div class="form-group">
+                <label for="event-date">Date</label>
+                <div class="input-wrapper">
+                  <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  <input type="date" id="event-date" required>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="event-time">Time</label>
+                <div class="input-wrapper">
+                  <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  <input type="time" id="event-time" required>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 16px;">
+              <label for="event-venue">Venue / Location</label>
+              <div class="input-wrapper">
+                <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                <input type="text" id="event-venue" placeholder="e.g. Lab 3, CSE Block or Zoom Link" required autocomplete="off">
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 12px; margin-top: 24px;">
+              <button type="submit" class="submit-btn" id="event-form-submit" style="flex: 1; margin-top: 0;">
+                <span>Save Event</span>
+                <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              </button>
+              <button type="button" class="submit-btn btn-secondary" id="event-form-cancel" style="margin-top: 0;">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- ================= SECTION: EVENT LIST ================= -->
+      <section id="view-events" class="view-section">
+        <!-- Search and Filter Bar -->
+        <div class="controls-bar">
+          <div class="search-box">
+            <div class="input-wrapper">
+              <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="event-search-input" placeholder="Search events by title..." autocomplete="off">
+            </div>
+          </div>
+          
+          <div class="filter-controls">
+            <!-- Filter Category -->
+            <select id="filter-category" class="select-filter">
+              <option value="All">All Categories</option>
+              <option value="Exam">Exam</option>
+              <option value="Placement Drive">Placement Drive</option>
+              <option value="Hackathon">Hackathon</option>
+              <option value="Workshop">Workshop</option>
+              <option value="Seminar">Seminar</option>
+              <option value="Club Meeting">Club Meeting</option>
+              <option value="Other">Other</option>
+            </select>
+
+            <!-- Filter Timeframe -->
+            <select id="filter-timeframe" class="select-filter">
+              <option value="all" selected>All Events</option>
+              <option value="upcoming">Upcoming Events</option>
+              <option value="today">Today's Events</option>
+              <option value="past">Completed/Past</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Event Cards Grid -->
+        <div class="events-grid" id="events-display-grid">
+          <!-- Dynamically populated -->
+        </div>
+      </section>
+
+      <!-- ================= SECTION: CALENDAR ================= -->
+      <section id="view-calendar" class="view-section">
+        <div class="calendar-panel">
+          <div class="calendar-header">
+            <div class="calendar-title-text" id="calendar-month-year">June 2026</div>
+            <div class="calendar-navigation">
+              <button id="calendar-prev-btn" class="calendar-nav-btn" aria-label="Previous Month">
+                <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+              </button>
+              <button id="calendar-next-btn" class="calendar-nav-btn" aria-label="Next Month">
+                <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="calendar-grid-weekdays">
+            <div>Sun</div>
+            <div>Mon</div>
+            <div>Tue</div>
+            <div>Wed</div>
+            <div>Thu</div>
+            <div>Fri</div>
+            <div>Sat</div>
+          </div>
+
+          <div class="calendar-grid-days" id="calendar-grid-days-container">
+            <!-- Dynamically generated days -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SECTION: SETTINGS ================= -->
+      <section id="view-settings" class="view-section">
+        <div class="settings-panel">
+          <div class="settings-group">
+            <h4 class="settings-group-title">User Account Info</h4>
+            <div class="setting-row">
+              <div class="setting-info">
+                <span class="setting-title" id="settings-username">Loading...</span>
+                <span class="setting-desc" id="settings-useremail">Loading...</span>
+              </div>
+              <button class="submit-btn btn-secondary" id="settings-logout-btn" style="margin-top: 0; padding: 10px 16px;">Sign Out</button>
+            </div>
+          </div>
+
+          <div class="settings-group">
+            <h4 class="settings-group-title">Notifications Preference</h4>
+            
+            <div class="setting-row">
+              <div class="setting-info">
+                <span class="setting-title">Browser Push Notifications</span>
+                <span class="setting-desc">Trigger a desktop banner alert when events are approaching.</span>
+              </div>
+              <label class="switch-control">
+                <input type="checkbox" id="settings-push-toggle">
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="setting-row">
+              <div class="setting-info">
+                <span class="setting-title">Test Desktop Alert</span>
+                <span class="setting-desc">Fire a simulated immediate desktop notification to check browser permissions.</span>
+              </div>
+              <button class="submit-btn" id="settings-trigger-test" style="margin-top: 0; padding: 8px 14px; font-size: 0.85rem;">Test Push</button>
+            </div>
+          </div>
+
+          <div class="settings-group">
+            <h4 class="settings-group-title">Simulations & Setup</h4>
+            <div class="setting-row">
+              <div class="setting-info">
+                <span class="setting-title">Database Mode</span>
+                <span class="setting-desc" id="settings-db-mode-desc">Checking state...</span>
+              </div>
+            </div>
+            <div class="setting-row" id="demo-clean-row">
+              <div class="setting-info">
+                <span class="setting-title">Reset Demo Database</span>
+                <span class="setting-desc">Clear localStorage and remove all saved demo events and demo users.</span>
+              </div>
+              <button class="submit-btn btn-delete" id="settings-clear-demo" style="margin-top: 0; padding: 8px 14px; font-size: 0.85rem; border: none;">Reset All</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ================= MODAL DETAIL VIEW OVERLAY ================= -->
+  <div id="modal-overlay" class="modal-overlay">
+    <div class="modal-card">
+      <button class="modal-close-btn" id="modal-close-trigger" aria-label="Close modal">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <h3 class="modal-title" id="modal-detail-title">Algorithms Midterm Exam</h3>
+      
+      <div class="modal-body">
+        <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+          <span class="badge" id="modal-detail-priority">High Priority</span>
+          <span class="badge badge-category" id="modal-detail-category">Exam</span>
+        </div>
+
+        <div class="modal-detail-item">
+          <div class="modal-detail-icon">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </div>
+          <div class="modal-detail-content">
+            <strong>Date</strong>
+            <span id="modal-detail-date">Monday, June 22, 2026</span>
+          </div>
+        </div>
+
+        <div class="modal-detail-item">
+          <div class="modal-detail-icon">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div class="modal-detail-content">
+            <strong>Time & Reminder</strong>
+            <span id="modal-detail-time-reminder">10:00 AM (Reminder 1 day before)</span>
+          </div>
+        </div>
+
+        <div class="modal-detail-item">
+          <div class="modal-detail-icon">
+            <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </div>
+          <div class="modal-detail-content">
+            <strong>Venue</strong>
+            <span id="modal-detail-venue">Seminar Hall A, CSE Block</span>
+          </div>
+        </div>
+
+        <div class="modal-detail-item">
+          <div class="modal-detail-icon">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 15 15"/></svg>
+          </div>
+          <div class="modal-detail-content">
+            <strong>Countdown</strong>
+            <span id="modal-detail-countdown" style="font-weight: 600; color: var(--color-primary);">5 Days, 12 Hours remaining</span>
+          </div>
+        </div>
+
+        <div class="modal-detail-item">
+          <div class="modal-detail-icon">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          </div>
+          <div class="modal-detail-content" style="flex: 1;">
+            <strong>Description / Notes</strong>
+            <p class="modal-description" id="modal-detail-desc">No additional notes provided.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= TOASTS FEEDBACK NOTIFICATIONS ================= -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Entry Script -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

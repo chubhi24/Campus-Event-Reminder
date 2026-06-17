@@ -1,0 +1,15 @@
+# Local configuration (Contains sensitive API keys)
+js/config.js
+
+# OS files
+.DS_Store
+
+# IDEs
+.vscode/
+.idea/
+
+# Firebase CLI cache
+.firebase/
+
+# Log files
+*.log
